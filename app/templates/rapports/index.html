@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+
+{% block title %}Rapports{% endblock %}
+
+{% block content %}
+
+<div class="import-page">
+
+    <div class="import-header">
+        <h1>Rapports et exportation</h1>
+        <p>Générez et téléchargez les rapports des dossiers fiscaux.</p>
+    </div>
+
+    <div class="import-options">
+
+        <!-- Export Excel -->
+        <a href="{{ url_for('rapports.exporter_excel') }}"
+           class="report-card">
+
+            <div class="report-icon excel-icon">
+                <span>XLS</span>
+            </div>
+
+            <h2>Exportation Excel</h2>
+
+            <p>
+                Téléchargez les dossiers fiscaux dans un fichier Excel
+                pour les analyser et les filtrer.
+            </p>
+
+            <span class="report-button">
+                Télécharger Excel
+            </span>
+
+        </a>
+
+        <!-- Export PDF -->
+        <a href="{{ url_for('rapports.exporter_pdf') }}"
+           class="report-card">
+
+            <div class="report-icon pdf-icon">
+                <span>PDF</span>
+            </div>
+
+            <h2>Rapport PDF</h2>
+
+            <p>
+                Générez un rapport imprimable avec les montants,
+                les échéances et les statuts.
+            </p>
+
+            <span class="report-button">
+                Télécharger PDF
+            </span>
+
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

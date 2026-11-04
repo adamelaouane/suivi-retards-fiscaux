@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}Synthèse financière{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Synthèse Financière & Recouvrement</h1>
+        <p class="page-subtitle">Indicateurs consolidés, performance de recouvrement et tranches d'impayés</p>
+    </div>
+    <div>
+        <a href="{{ url_for('rapports.index') }}" class="btn btn-secondary">
+            Télécharger les rapports
+        </a>
+    </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-label">Total des dossiers</div>
+        <div class="stat-value">{{ statistiques.nombre_dossiers }}</div>
+        <div class="stat-description">Dossiers enregistrés</div>
+    </div>
+
+    <div class="stat-card stat-success">
+        <div class="stat-label">Dossiers soldés</div>
+        <div class="stat-value">{{ statistiques.nombre_payes }}</div>
+        <div class="stat-description">Payés intégralement</div>
+    </div>
+
+    <div class="stat-card stat-warning">
+        <div class="stat-label">Paiements partiels</div>
+        <div class="stat-value">{{ statistiques.nombre_partiels }}</div>
+        <div class="stat-description">Versement en cours</div>
+    </div>
+
+    <div class="stat-card stat-danger">
+        <div class="stat-label">Dossiers en retard</div>
+        <div class="stat-value">{{ statistiques.nombre_en_retard }}</div>
+        <div class="stat-description">Échéance dépassée avec solde</div>
+    </div>
+</div>
+
+<!-- Situation financière globale -->
+<div class="data-card" style="margin-bottom: 2rem;">
+    <div class="data-card-header">
+        <h2 class="data-card-title">Flux Financiers Consolidés</h2>
+    </div>
+    <div class="data-card-body">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Montant Total Exigible</div>
+                <div class="stat-value" style="font-size: 1.5rem; color: #1e293b;">
+                    {{ "{:,.2f}".format(statistiques.montant_exigible) }} DH
+                </div>
+                <div class="stat-description">Créance brute totale</div>
+            </div>
+
+            <div class="stat-card stat-success">
+                <div class="stat-label">Montant Recouvré</div>
+                <div class="stat-value" style="font-size: 1.5rem;">
+                    {{ "{:,.2f}".format(statistiques.montant_paye) }} DH
+                </div>
+                <div class="stat-description">Versements validés</div>
+            </div>
+
+            <div class="stat-card {% if statistiques.montant_restant > 0 %}stat-warning{% endif %}">
+                <div class="stat-label">Reste à Recouvrer</div>
+                <div class="stat-value" style="font-size: 1.5rem;">
+                    {{ "{:,.2f}".format(statistiques.montant_restant) }} DH
+                </div>
+                <div class="stat-description">Solde impayé actif</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Taux de Recouvrement</div>
+                <div class="stat-value" style="font-size: 1.5rem; color: #2563eb;">
+                    {{ "%.2f"|format(statistiques.taux_recouvrement) }}%
+                </div>
+                <div class="stat-description">Part encaissée sur le total</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tranches de retard -->
+<div class="data-card" style="margin-bottom: 2rem;">
+    <div class="data-card-header">
+        <h2 class="data-card-title">Exposition au Retard (Tranches d'ancienneté du solde)</h2>
+    </div>
+    <div class="data-card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tranche de retard</th>
+                        <th>Nombre de dossiers</th>
+                        <th>Montant restant cumulé</th>
+                        <th>Niveau de risque</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>{{ statistiques.tranches_retard.a_jour.label }}</strong></td>
+                        <td>{{ statistiques.tranches_retard.a_jour.count }}</td>
+                        <td>{{ "{:,.2f}".format(statistiques.tranches_retard.a_jour.montant) }} DH</td>
+                        <td><span class="badge badge-success">Normal</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ statistiques.tranches_retard.modere.label }}</strong></td>
+                        <td>{{ statistiques.tranches_retard.modere.count }}</td>
+                        <td>{{ "{:,.2f}".format(statistiques.tranches_retard.modere.montant) }} DH</td>
+                        <td><span class="badge badge-info">Modéré</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ statistiques.tranches_retard.significatif.label }}</strong></td>
+                        <td>{{ statistiques.tranches_retard.significatif.count }}</td>
+                        <td>{{ "{:,.2f}".format(statistiques.tranches_retard.significatif.montant) }} DH</td>
+                        <td><span class="badge badge-warning">Significatif</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>{{ statistiques.tranches_retard.critique.label }}</strong></td>
+                        <td>{{ statistiques.tranches_retard.critique.count }}</td>
+                        <td><strong>{{ "{:,.2f}".format(statistiques.tranches_retard.critique.montant) }} DH</strong></td>
+                        <td><span class="badge badge-danger">Critique</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Répartition par type de taxe -->
+<div class="data-card">
+    <div class="data-card-header">
+        <h2 class="data-card-title">Performance par Type de Taxe</h2>
+    </div>
+    <div class="data-card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Code & Taxe</th>
+                        <th>Dossiers</th>
+                        <th>Montant Exigible</th>
+                        <th>Montant Payé</th>
+                        <th>Reste à Recouvrer</th>
+                        <th>Dossiers en Retard</th>
+                        <th>Taux Recouvrement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in statistiques.stats_par_taxe %}
+                    <tr>
+                        <td><strong>{{ item.taxe.code }}</strong> — {{ item.taxe.libelle }}</td>
+                        <td>{{ item.total_dossiers }}</td>
+                        <td>{{ "{:,.2f}".format(item.montant_exigible) }} DH</td>
+                        <td>{{ "{:,.2f}".format(item.montant_paye) }} DH</td>
+                        <td><strong>{{ "{:,.2f}".format(item.montant_restant) }} DH</strong></td>
+                        <td>
+                            {% if item.nb_retard > 0 %}
+                                <span class="badge badge-danger">{{ item.nb_retard }}</span>
+                            {% else %}
+                                <span class="badge badge-success">0</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ "%.1f"|format(item.taux_recouvrement) }}%</strong>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="empty-state">Aucune taxe enregistrée.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

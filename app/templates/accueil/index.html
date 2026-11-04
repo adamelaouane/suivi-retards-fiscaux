@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Tableau de bord</h1>
+        <p>Vue générale de la situation des dossiers fiscaux.</p>
+    </div>
+
+    <div class="page-date" id="currentDate"></div>
+</div>
+
+<!-- Indicateurs généraux -->
+<section class="section-block">
+    <div class="section-heading">
+        <h2>Indicateurs généraux</h2>
+        <span class="section-subtitle">
+            Les indicateurs sont calculés à partir des dossiers
+            et des paiements enregistrés.
+        </span>
+    </div>
+
+    <div class="stats-grid">
+
+        <article class="stat-card">
+            <div class="stat-label">Total des dossiers</div>
+            <div class="stat-value">{{ stats.total_dossiers }}</div>
+            <div class="stat-description">Tous les dossiers enregistrés</div>
+        </article>
+
+        <article class="stat-card stat-danger">
+            <div class="stat-label">Dossiers impayés</div>
+            <div class="stat-value">{{ stats.dossiers_impayes }}</div>
+            <div class="stat-description">Solde restant à régler</div>
+        </article>
+
+        <article class="stat-card stat-warning">
+            <div class="stat-label">Paiements partiels</div>
+            <div class="stat-value">{{ stats.dossiers_partiels }}</div>
+            <div class="stat-description">Dossiers partiellement réglés</div>
+        </article>
+
+        <article class="stat-card stat-danger">
+            <div class="stat-label">Dossiers en retard</div>
+            <div class="stat-value">{{ stats.en_retard }}</div>
+            <div class="stat-description">Échéance dépassée, solde restant</div>
+        </article>
+
+        <article class="stat-card stat-success">
+            <div class="stat-label">Dossiers payés</div>
+            <div class="stat-value">{{ stats.dossiers_payes }}</div>
+            <div class="stat-description">Dossiers intégralement réglés</div>
+        </article>
+
+    </div>
+</section>
+
+<!-- Situation financière -->
+<section class="section-block">
+    <div class="section-heading">
+        <h2>Situation financière</h2>
+        <span class="section-subtitle">Montants en dirhams (MAD)</span>
+    </div>
+
+    <div class="financial-panel">
+        <div>
+            <div class="stat-label">Montant total restant à recouvrer</div>
+
+            <div class="financial-value">
+                {{ "{:,.2f}".format(stats.montant_restant) }}
+                <span>MAD</span>
+            </div>
+
+            <p class="muted">
+                Calculé à partir des montants dus et des paiements
+                enregistrés.
+            </p>
+        </div>
+
+        <div class="financial-icon">MAD</div>
+    </div>
+</section>
+
+<!-- Dernières opérations -->
+<section class="section-block">
+    <div class="section-heading">
+        <h2>Dernières opérations</h2>
+        <span class="section-subtitle">Activité récente</span>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Opération</th>
+                    <th>Référence</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for activite in activites %}
+                <tr>
+                    <td>{{ activite.date }}</td>
+                    <td>{{ activite.operation }}</td>
+                    <td>{{ activite.reference }}</td>
+                    <td>
+                        <span class="status-badge">
+                            {{ activite.statut }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="empty-state">
+                        Aucune opération enregistrée pour le moment.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Accès rapide -->
+<section class="section-block">
+    <div class="section-heading">
+        <h2>Accès rapide</h2>
+        <span class="section-subtitle">
+            Accéder directement aux modules de l'application.
+        </span>
+    </div>
+
+    <div class="quick-links">
+
+        <a href="{{ url_for('suivi_impayes.index') }}" class="quick-link">
+            <span class="quick-icon">▤</span>
+            <div>
+                <strong>Suivi des impayés</strong>
+                <p>Consulter les dossiers en retard.</p>
+            </div>
+            <span class="quick-arrow">→</span>
+        </a>
+
+        <a href="{{ url_for('recherche.index') }}" class="quick-link">
+            <span class="quick-icon">⌕</span>
+            <div>
+                <strong>Recherche avancée</strong>
+                <p>Retrouver un dossier selon plusieurs critères.</p>
+            </div>
+            <span class="quick-arrow">→</span>
+        </a>
+
+        <a href="{{ url_for('rapports.index') }}" class="quick-link">
+            <span class="quick-icon">▧</span>
+            <div>
+                <strong>Rapports</strong>
+                <p>Préparer des rapports et des exports.</p>
+            </div>
+            <span class="quick-arrow">→</span>
+        </a>
+
+    </div>
+</section>
+
+<!-- Date actuelle -->
+<script>
+    const dateElement = document.getElementById("currentDate");
+
+    if (dateElement) {
+        dateElement.textContent = new Intl.DateTimeFormat("fr-FR", {
+            weekday: "long",
+            day: "2-digit",
+            month: "long",
+            year: "numeric"
+        }).format(new Date());
+    }
+</script>
+
+{% endblock %}

@@ -1,0 +1,117 @@
+
+{% extends "base.html" %}
+
+{% block title %}Suivi des impayés{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Suivi des impayés</h1>
+        <p>Consultation des dossiers avec un solde restant à régler.</p>
+    </div>
+</div>
+
+<section class="section-block">
+    <div class="stats-grid">
+        <article class="stat-card">
+            <div class="stat-label">Dossiers avec solde</div>
+            <div class="stat-value">{{ stats.nombre }}</div>
+        </article>
+
+        <article class="stat-card stat-danger">
+            <div class="stat-label">Dossiers en retard</div>
+            <div class="stat-value">{{ stats.en_retard }}</div>
+        </article>
+
+        <article class="stat-card stat-warning">
+            <div class="stat-label">Montant restant</div>
+            <div class="stat-value">
+                {{ "{:,.2f}".format(stats.montant_restant) }}
+            </div>
+            <div class="stat-description">MAD</div>
+        </article>
+    </div>
+</section>
+
+<section class="section-block">
+    <form method="GET" class="financial-panel">
+        <div style="flex: 1;">
+            <label for="q">Rechercher un dossier</label>
+            <input
+                id="q"
+                type="search"
+                name="q"
+                value="{{ query }}"
+                placeholder="Numéro, nom ou identifiant fiscal"
+                style="width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #d9dee6;"
+            >
+        </div>
+
+        <button
+            type="submit"
+            style="padding: 11px 18px; border: 0; background: #24558a; color: white; cursor: pointer;"
+        >
+            Rechercher
+        </button>
+
+        <a href="{{ url_for('suivi_impayes.index') }}">Réinitialiser</a>
+    </form>
+</section>
+
+<section class="section-block">
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>N° dossier</th>
+                    <th>Contribuable</th>
+                    <th>Identifiant fiscal</th>
+                    <th>Type de taxe</th>
+                    <th>Année</th>
+                    <th>Échéance</th>
+                    <th>Montant dû</th>
+                    <th>Montant payé</th>
+                    <th>Reste à payer</th>
+                    <th>Retard (jours)</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for dossier in dossiers %}
+                <tr>
+                    <td>{{ dossier.numero_dossier }}</td>
+                    <td>{{ dossier.contribuable.nom_complet }}</td>
+                    <td>{{ dossier.contribuable.identifiant_fiscal }}</td>
+                    <td>{{ dossier.type_taxe.libelle }}</td>
+                    <td>{{ dossier.annee_fiscale }}</td>
+                    <td>{{ dossier.date_limite.strftime("%d/%m/%Y") }}</td>
+                    <td>{{ "{:,.2f}".format(dossier.montant_exigible) }}</td>
+                    <td>{{ "{:,.2f}".format(dossier.montant_paye) }}</td>
+                    <td>{{ "{:,.2f}".format(dossier.montant_restant) }}</td>
+                    <td>{{ dossier.jours_retard }}</td>
+                    <td>
+                        {% if dossier.jours_retard > 0 %}
+                            <span class="status-badge">En retard</span>
+                        {% elif dossier.statut == "PARTIELLEMENT_PAYE" %}
+                            <span class="status-badge">Partiel</span>
+                        {% else %}
+                            <span class="status-badge">À régler</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="11" class="empty-state">
+                        Aucun dossier trouvé. Ajoutez des données de test
+                        pour commencer la consultation.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

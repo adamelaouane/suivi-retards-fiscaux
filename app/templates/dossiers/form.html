@@ -1,0 +1,145 @@
+
+{% extends "base.html" %}
+
+{% block title %}{% if dossier %}Modifier {{ dossier.numero_dossier }}{% else %}Nouveau Dossier Fiscal{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="dossier-page">
+
+    <div class="dossier-header">
+        <div>
+            <span class="dossier-eyebrow">GESTION FISCALE</span>
+            <h1>{% if dossier %}Modifier le dossier fiscal{% else %}Nouveau dossier fiscal{% endif %}</h1>
+            <p>Rattachement d'un impôt à un contribuable pour une année fiscale.</p>
+        </div>
+
+        <a href="{% if dossier %}{{ url_for('dossiers.detail', dossier_id=dossier.id) }}{% else %}{{ url_for('recherche.index') }}{% endif %}"
+           class="dossier-btn dossier-btn-light">
+            ← Retour
+        </a>
+    </div>
+
+    <div class="dossier-form-card">
+
+        <div class="dossier-card-heading">
+            <h2>Paramètres du dossier fiscal</h2>
+            <p>Renseignez les informations nécessaires ci-dessous.</p>
+        </div>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            {% if not dossier %}
+
+            <div class="dossier-form-grid">
+
+                <div class="dossier-form-group">
+                    <label for="numero_dossier">Numéro de dossier *</label>
+                    <input type="text" id="numero_dossier" name="numero_dossier"
+                           placeholder="Ex : DOS-2025-001" required>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="contribuable_id">Contribuable *</label>
+                    <select id="contribuable_id" name="contribuable_id" required>
+                        <option value="">-- Sélectionner un contribuable --</option>
+                        {% for c in contribuables %}
+                            <option value="{{ c.id }}" {% if contribuable_selectionne == c.id %}selected{% endif %}>
+                                {{ c.nom_complet }} (IF: {{ c.identifiant_fiscal }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="type_taxe_id">Type de taxe *</label>
+                    <select id="type_taxe_id" name="type_taxe_id" required>
+                        <option value="">-- Sélectionner une taxe --</option>
+                        {% for t in types_taxes %}
+                            <option value="{{ t.id }}">{{ t.code }} - {{ t.libelle }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="annee_fiscale">Année fiscale *</label>
+                    <input type="number" id="annee_fiscale" name="annee_fiscale"
+                           value="{{ annee_courante }}" min="1900" max="2100" required>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="date_limite">Date limite de paiement *</label>
+                    <input type="date" id="date_limite" name="date_limite" required>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="montant_exigible">Montant exigible (DH) *</label>
+                    <input type="number" id="montant_exigible" name="montant_exigible"
+                           step="0.01" min="0.01" placeholder="0.00" required>
+                </div>
+
+            </div>
+
+            {% else %}
+
+            <div class="dossier-form-grid">
+
+                <div class="dossier-form-group">
+                    <label>Numéro de dossier</label>
+                    <input type="text" value="{{ dossier.numero_dossier }}" readonly>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label>Contribuable</label>
+                    <input type="text"
+                           value="{{ dossier.contribuable.nom_complet }} (IF: {{ dossier.contribuable.identifiant_fiscal }})"
+                           readonly>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label>Type de taxe</label>
+                    <input type="text"
+                           value="{{ dossier.type_taxe.code }} - {{ dossier.type_taxe.libelle }}"
+                           readonly>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label>Montant exigible initial</label>
+                    <input type="text" value="{{ dossier.montant_exigible }} DH" readonly>
+                </div>
+
+                <div class="dossier-form-group">
+                    <label for="date_limite">Date limite de paiement *</label>
+                    <input type="date" id="date_limite" name="date_limite"
+                           value="{{ dossier.date_limite.strftime('%Y-%m-%d') }}" required>
+                </div>
+
+            </div>
+
+            {% endif %}
+
+            <div class="dossier-form-group dossier-observations">
+                <label for="observations">Observations / Remarques</label>
+                <textarea id="observations" name="observations" rows="4"
+                          placeholder="Ajoutez vos remarques ici...">{{ dossier.observations if dossier and dossier.observations else '' }}</textarea>
+            </div>
+
+            <div class="dossier-form-actions">
+                <a href="{% if dossier %}{{ url_for('dossiers.detail', dossier_id=dossier.id) }}{% else %}{{ url_for('recherche.index') }}{% endif %}"
+                   class="dossier-btn dossier-btn-light">
+                    Annuler
+                </a>
+
+                <button type="submit" class="dossier-btn dossier-btn-primary">
+                    {% if dossier %}Enregistrer les modifications{% else %}Créer le dossier fiscal{% endif %}
+                </button>
+            </div>
+
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+```

@@ -1,0 +1,165 @@
+
+{% extends "base.html" %}
+
+{% block title %}Importation{% endblock %}
+
+{% block content %}
+
+<div class="import-page">
+
+    <div class="import-header">
+        <h1>Importation des données</h1>
+        <p>Importez vos dossiers fiscaux via un fichier Excel ou CSV.</p>
+        <p style="font-size:0.85em; color:#666;">
+            Colonnes obligatoires :
+            <code>numero_dossier</code>, <code>identifiant_fiscal</code>, <code>nom</code>,
+            <code>type_taxe</code>, <code>annee_fiscale</code>, <code>date_limite</code>,
+            <code>montant_exigible</code><br>
+            Colonnes optionnelles :
+            <code>prenom</code>, <code>cin</code>, <code>telephone</code>,
+            <code>libelle_taxe</code>, <code>observations</code>
+        </p>
+    </div>
+
+    <div class="import-options">
+
+    <!-- Excel Button -->
+    <form method="POST" enctype="multipart/form-data"
+          class="import-card-form">
+
+        <input type="hidden" name="type_import" value="excel">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <input
+            type="file"
+            name="fichier"
+            id="excel-file"
+            accept=".xlsx"
+            hidden
+            required
+            onchange="this.form.submit()"
+        >
+
+        <label for="excel-file" class="import-card">
+
+            <div class="import-icon excel-icon">
+                <span>▤</span>
+            </div>
+
+            <h2>Importer Excel</h2>
+
+            <p>
+                Sélectionnez un fichier Excel (.xlsx)
+                pour importer vos dossiers fiscaux.
+            </p>
+
+            <span class="import-button">
+                Choisir un fichier
+            </span>
+
+        </label>
+    </form>
+
+
+    <!-- CSV Button -->
+    <form method="POST" enctype="multipart/form-data"
+          class="import-card-form">
+
+        <input type="hidden" name="type_import" value="csv">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <input
+            type="file"
+            name="fichier"
+            id="csv-file"
+            accept=".csv"
+            hidden
+            required
+            onchange="this.form.submit()"
+        >
+
+        <label for="csv-file" class="import-card">
+
+            <div class="import-icon data-icon">
+                <span>⇧</span>
+            </div>
+
+            <h2>Importer CSV</h2>
+
+            <p>
+                Sélectionnez un fichier CSV
+                pour importer plusieurs dossiers.
+            </p>
+
+            <span class="import-button">
+                Choisir un fichier
+            </span>
+
+        </label>
+    </form>
+
+</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="import-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if resultat %}
+
+    <div class="import-result">
+        <h2>Résultat de l'importation</h2>
+
+        <table style="border-collapse:collapse; margin-bottom:1rem;">
+            <tr>
+                <td style="padding:4px 12px;"><strong>Lignes lues</strong></td>
+                <td style="padding:4px 12px;">{{ resultat.batch.nombre_lignes }}</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 12px;"><strong>✅ Dossiers importés</strong></td>
+                <td style="padding:4px 12px; color:green;">{{ resultat.nombre_importes }}</td>
+            </tr>
+            <tr>
+                <td style="padding:4px 12px;"><strong>❌ Lignes en erreur</strong></td>
+                <td style="padding:4px 12px;
+                    color:{% if resultat.nombre_erreurs > 0 %}red{% else %}green{% endif %};">
+                    {{ resultat.nombre_erreurs }}
+                </td>
+            </tr>
+        </table>
+
+        {% if resultat.erreurs %}
+        <h3 style="color:red;">Détail des erreurs</h3>
+        <table style="border-collapse:collapse; width:100%; font-size:0.9em;">
+            <thead>
+                <tr style="background:#f2f2f2;">
+                    <th style="border:1px solid #ccc; padding:6px 10px;">Ligne</th>
+                    <th style="border:1px solid #ccc; padding:6px 10px;">Erreur</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for erreur in resultat.erreurs %}
+                <tr>
+                    <td style="border:1px solid #ccc; padding:6px 10px; text-align:center;">
+                        {{ erreur.ligne }}
+                    </td>
+                    <td style="border:1px solid #ccc; padding:6px 10px; color:#c0392b;">
+                        {{ erreur.erreur }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

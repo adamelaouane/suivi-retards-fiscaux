@@ -1,0 +1,418 @@
+/* =========================================
+   TYPES DE TAXES - FORM PAGE
+========================================= */
+
+.tax-form-wrapper {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.tax-form-card {
+    overflow: hidden;
+    border: 1px solid #e8eaf0;
+    border-radius: 14px;
+}
+
+.tax-form-card .data-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 26px;
+}
+
+.tax-form-description {
+    margin: 6px 0 0;
+    color: #7b8494;
+    font-size: 13px;
+}
+
+.tax-form-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: #eaf1f8;
+    color: #24558a;
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.tax-form-card .data-card-body {
+    padding: 26px;
+}
+
+.tax-form-card .form-group {
+    margin-bottom: 22px;
+}
+
+.tax-form-card .form-control {
+    width: 100%;
+    min-height: 44px;
+    border: 1px solid #dfe3eb;
+    border-radius: 8px;
+    padding: 11px 13px;
+    background: #fff;
+    color: #273044;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+.tax-form-card .form-control:focus {
+    outline: none;
+    border-color: #24558a;
+    box-shadow: 0 0 0 3px rgba(36, 85, 138, .12);
+}
+
+.tax-form-card textarea.form-control {
+    resize: vertical;
+    min-height: 110px;
+}
+
+.required {
+    color: #dc4545;
+}
+
+.tax-form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 22px;
+    margin-top: 10px;
+    border-top: 1px solid #edf0f4;
+}
+
+.tax-info-note {
+    display: flex;
+    gap: 13px;
+    align-items: flex-start;
+    margin-top: 18px;
+    padding: 16px;
+    border: 1px solid #d4e1ef;
+    border-radius: 10px;
+    background: #f2f6fa;
+    color: #17365d;
+}
+
+.tax-info-note-icon {
+    width: 23px;
+    height: 23px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: #dce8f5;
+    color: #24558a;
+    font-weight: 700;
+}
+
+.tax-info-note p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+
+/* =========================================
+   TYPES DE TAXES - INDEX PAGE
+========================================= */
+
+.tax-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.tax-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 19px;
+    background: #fff;
+    border: 1px solid #e8eaf0;
+    border-radius: 12px;
+}
+
+.tax-summary-icon {
+    width: 43px;
+    height: 43px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #eaf1f8;
+    color: #24558a;
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.tax-summary-active {
+    background: #e9f8ef;
+    color: #219653;
+}
+
+.tax-summary-inactive {
+    background: #f1f2f5;
+    color: #7b8494;
+}
+
+.tax-summary-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #7b8494;
+    font-size: 12px;
+}
+
+.tax-summary-card strong {
+    display: block;
+    color: #252d3d;
+    font-size: 23px;
+}
+
+.tax-list-card {
+    overflow: hidden;
+    border: 1px solid #e8eaf0;
+    border-radius: 13px;
+}
+
+.tax-list-card .data-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    padding: 20px 23px;
+}
+
+.tax-list-subtitle {
+    margin: 5px 0 0;
+    color: #7b8494;
+    font-size: 12px;
+}
+
+.tax-count {
+    padding: 7px 11px;
+    border-radius: 7px;
+    background: #eaf1f8;
+    color: #24558a;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tax-table th {
+    white-space: nowrap;
+}
+
+.tax-table td {
+    vertical-align: middle;
+}
+
+.tax-code {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #eaf1f8;
+    color: #24558a;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .4px;
+}
+
+.tax-label {
+    color: #293246;
+}
+
+.tax-description {
+    display: inline-block;
+    max-width: 250px;
+    color: #778194;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tax-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 4px;
+    border-radius: 50%;
+    background: #219653;
+}
+
+.inactive-dot {
+    background: #9299a5;
+}
+
+.tax-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 45px 15px;
+    text-align: center;
+}
+
+.tax-empty-icon {
+    width: 55px;
+    height: 55px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    background: #eaf1f8;
+    color: #24558a;
+    font-size: 27px;
+    font-weight: 700;
+}
+
+.tax-empty strong {
+    color: #293246;
+    font-size: 15px;
+}
+
+.tax-empty p {
+    margin: 0 0 8px;
+    color: #7b8494;
+    font-size: 13px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+    .tax-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .tax-list-card .data-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .tax-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+@media (max-width: 600px) {
+    .tax-form-wrapper {
+        width: 100%;
+    }
+
+    .tax-form-card .data-card-body {
+        padding: 18px;
+    }
+
+    .tax-form-footer {
+        flex-direction: column-reverse;
+    }
+
+    .tax-form-footer .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+}
+/* =========================================
+ ```css
+/* =========================================
+   BUTTONS - BLUE THEME
+========================================= */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+/* Primary */
+.btn-primary {
+    background: #24558a;
+    color: #fff !important;
+    border-color: #24558a;
+}
+
+.btn-primary:hover {
+    background: #17365d;
+    border-color: #17365d;
+    color: #fff !important;
+}
+
+/* Secondary */
+.btn-secondary {
+    background: #fff;
+    color: #475569 !important;
+    border-color: #d1d5db;
+}
+
+.btn-secondary:hover {
+    background: #eaf1f8;
+    color: #24558a !important;
+    border-color: #a9c5e5;
+}
+
+/* Danger */
+.btn-danger {
+    background: #fff1f2;
+    color: #dc2626 !important;
+    border-color: #fecaca;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    color: #fff !important;
+    border-color: #dc2626;
+}
+
+/* Outline */
+.btn-outline {
+    background: #fff;
+    color: #24558a !important;
+    border-color: #24558a;
+}
+
+.btn-outline:hover {
+    background: #24558a;
+    color: #fff !important;
+}
+
+/* Small */
+.btn-sm {
+    padding: 7px 11px;
+    font-size: 12px;
+}
+
+/* Focus */
+.btn:focus-visible {
+    outline: 2px solid #a9c5e5;
+    outline-offset: 2px;
+}

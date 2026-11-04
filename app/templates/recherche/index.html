@@ -1,0 +1,188 @@
+
+{% extends "base.html" %}
+
+{% block title %}Recherche avancée{% endblock %}
+
+{% block content %}
+<div class="search-page">
+
+    <div class="page-heading">
+        <div>
+            <h1>Recherche avancée</h1>
+            <p>Recherchez et filtrez les dossiers fiscaux selon plusieurs critères.</p>
+        </div>
+        <div class="page-date">Gestion des dossiers</div>
+    </div>
+
+    <section class="search-card">
+        <div class="search-card-heading">
+            <div>
+                <h2>Critères de recherche</h2>
+                <p>Combinez plusieurs filtres pour affiner les résultats.</p>
+            </div>
+            <span class="search-icon">⌕</span>
+        </div>
+
+        <form method="GET" action="{{ url_for('recherche.index') }}">
+            <div class="search-grid">
+
+                <div class="search-field">
+                    <label for="q">Référence, nom ou prénom</label>
+                    <input type="text" id="q" name="q"
+                           value="{{ query }}"
+                           placeholder="Ex. DOS-TEST-001">
+                </div>
+
+                <div class="search-field">
+                    <label for="identifiant">Identifiant fiscal</label>
+                    <input type="text" id="identifiant" name="identifiant"
+                           value="{{ identifiant }}"
+                           placeholder="Identifiant fiscal">
+                </div>
+
+                <div class="search-field">
+                    <label for="type_taxe_id">Type de taxe</label>
+                    <select id="type_taxe_id" name="type_taxe_id">
+                        <option value="">Tous les types</option>
+                        {% for taxe in types_taxes %}
+                        <option value="{{ taxe.id }}"
+                            {% if type_taxe_id|string == taxe.id|string %}selected{% endif %}>
+                            {{ taxe.libelle }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-field">
+                    <label for="annee">Année fiscale</label>
+                    <select id="annee" name="annee">
+                        <option value="">Toutes les années</option>
+                        {% for annee_option in annees %}
+                        <option value="{{ annee_option }}"
+                            {% if annee == annee_option|string %}selected{% endif %}>
+                            {{ annee_option }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-field">
+                    <label for="statut">Statut du dossier</label>
+                    <select id="statut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        <option value="IMPAYE" {% if statut == "IMPAYE" %}selected{% endif %}>
+                            Impayé
+                        </option>
+                        <option value="PARTIELLEMENT_PAYE" {% if statut == "PARTIELLEMENT_PAYE" %}selected{% endif %}>
+                            Partiellement payé
+                        </option>
+                        <option value="PAYE" {% if statut == "PAYE" %}selected{% endif %}>
+                            Payé
+                        </option>
+                    </select>
+                </div>
+
+                <div class="search-field">
+                    <label for="retard">Situation du retard</label>
+                    <select id="retard" name="retard">
+                        <option value="">Toutes les situations</option>
+                        <option value="en_retard" {% if retard == "en_retard" %}selected{% endif %}>
+                            En retard
+                        </option>
+                        <option value="sans_retard" {% if retard == "sans_retard" %}selected{% endif %}>
+                            Pas encore en retard
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="search-actions">
+                <button type="submit" class="search-button">
+                    <span>⌕</span> Rechercher
+                </button>
+                <a href="{{ url_for('recherche.index') }}" class="reset-button">
+                    Réinitialiser les filtres
+                </a>
+            </div>
+        </form>
+    </section>
+
+    <section class="search-results">
+        <div class="section-heading">
+            <div>
+                <h2>Résultats de recherche</h2>
+                <p class="section-subtitle">Liste des dossiers correspondant aux critères.</p>
+            </div>
+            <span class="results-count">{{ dossiers|length }} dossier(s)</span>
+        </div>
+
+        <div class="table-container">
+            {% if dossiers %}
+            <table class="search-table">
+                <thead>
+                    <tr>
+                        <th>Référence</th>
+                        <th>Contribuable</th>
+                        <th>Identifiant fiscal</th>
+                        <th>Type de taxe</th>
+                        <th>Année</th>
+                        <th>Montant dû</th>
+                        <th>Montant payé</th>
+                        <th>Reste à payer</th>
+                        <th>Échéance</th>
+                        <th>Retard</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dossier in dossiers %}
+                    <tr>
+                        <td><strong class="dossier-reference">{{ dossier.numero_dossier }}</strong></td>
+                        <td>{{ dossier.contribuable.nom_complet }}</td>
+                        <td>{{ dossier.contribuable.identifiant_fiscal }}</td>
+                        <td>{{ dossier.type_taxe.libelle }}</td>
+                        <td>{{ dossier.annee_fiscale }}</td>
+                        <td>{{ "%.2f"|format(dossier.montant_exigible) }} MAD</td>
+                        <td>{{ "%.2f"|format(dossier.montant_paye) }} MAD</td>
+                        <td class="remaining-amount">
+                            {{ "%.2f"|format(dossier.montant_restant) }} MAD
+                        </td>
+                        <td>{{ dossier.date_limite.strftime("%d/%m/%Y") }}</td>
+                        <td>
+                            {% if dossier.jours_retard > 0 %}
+                                <span class="status-badge status-late">
+                                    {{ dossier.jours_retard }} jour(s)
+                                </span>
+                            {% else %}
+                                <span class="status-badge status-ok">0 jour</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if dossier.statut == "PAYE" %}
+                                <span class="status-badge status-paid">Payé</span>
+                            {% elif dossier.statut == "PARTIELLEMENT_PAYE" %}
+                                <span class="status-badge status-partial">Partiel</span>
+                            {% else %}
+                                <span class="status-badge status-unpaid">Impayé</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="search-empty">
+                <div class="empty-search-icon">⌕</div>
+                <h3>Aucun dossier trouvé</h3>
+                <p>Essayez de modifier les filtres ou de réinitialiser la recherche.</p>
+                <a href="{{ url_for('recherche.index') }}" class="reset-button">
+                    Effacer les filtres
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+</div>
+{% endblock %}

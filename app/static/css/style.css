@@ -1,0 +1,15 @@
+/* Point d’entrée CSS. Les fichiers sont importés dans leur ordre d’origine. */
+@import url("base.css");
+@import url("pages/recherche.css");
+@import url("pages/importation.css");
+@import url("pages/rapports.css");
+@import url("components.css");
+@import url("pages/parametres.css");
+@import url("pages/contribuables.css");
+@import url("pages/dossiers.css");
+@import url("pages/types_taxes.css");
+
+/* Authentification et session utilisateur */
+.user-session { color: #17365d; font-size: .88rem; font-weight: 600; white-space: nowrap; }
+.topbar-right form { margin: 0; }
+.topbar-right form .nav-link { border: 0; background: transparent; cursor: pointer; font: inherit; }

@@ -1,0 +1,79 @@
+/* ==============================
+   PROFESSIONAL SETTINGS BUTTON
+============================== */
+
+.settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+}
+
+.btn-save-settings {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 0 22px;
+    border: 1px solid #17365D;
+    border-radius: 9px;
+    background: linear-gradient(135deg, #24558A, #17365D);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(23, 54, 93, 0.16);
+    transition: all 0.25s ease;
+}
+
+.btn-save-settings:hover {
+    background: linear-gradient(135deg, #17365D, #102A49);
+    box-shadow: 0 7px 16px rgba(23, 54, 93, 0.23);
+    transform: translateY(-2px);
+}
+
+.btn-save-settings:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 5px rgba(23, 54, 93, 0.15);
+}
+
+.btn-save-settings:focus-visible {
+    outline: 3px solid #A9C5E5;
+    outline-offset: 3px;
+}
+
+.btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 23px;
+    height: 23px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.16);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.btn-arrow {
+    margin-left: 5px;
+    font-size: 18px;
+    transition: transform 0.25s ease;
+}
+
+.btn-save-settings:hover .btn-arrow {
+    transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .settings-actions {
+        justify-content: stretch;
+    }
+
+    .btn-save-settings {
+        width: 100%;
+    }
+}
+

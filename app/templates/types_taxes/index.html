@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Types de taxes{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-breadcrumb">Paramètres / Référentiel fiscal</div>
+        <h1 class="page-title">Référentiel des Taxes</h1>
+        <p class="page-subtitle">
+            Paramétrage et gestion des impôts et taxes de l'application
+        </p>
+    </div>
+
+    <a href="{{ url_for('types_taxes.nouveau') }}" class="btn btn-primary">
+        + Nouveau type de taxe
+    </a>
+</div>
+
+<div class="tax-summary">
+    <div class="tax-summary-card">
+        <div class="tax-summary-icon">%</div>
+        <div>
+            <span class="tax-summary-label">Total des taxes</span>
+            <strong>{{ types_taxes|length }}</strong>
+        </div>
+    </div>
+
+    <div class="tax-summary-card">
+        <div class="tax-summary-icon tax-summary-active">✓</div>
+        <div>
+            <span class="tax-summary-label">Taxes actives</span>
+            <strong>{{ types_taxes|selectattr('actif')|list|length }}</strong>
+        </div>
+    </div>
+
+    <div class="tax-summary-card">
+        <div class="tax-summary-icon tax-summary-inactive">−</div>
+        <div>
+            <span class="tax-summary-label">Taxes inactives</span>
+            <strong>{{ types_taxes|rejectattr('actif')|list|length }}</strong>
+        </div>
+    </div>
+</div>
+
+<div class="data-card tax-list-card">
+    <div class="data-card-header">
+        <div>
+            <h2 class="data-card-title">Types de taxes enregistrés</h2>
+            <p class="tax-list-subtitle">
+                Liste des catégories fiscales configurées dans le système
+            </p>
+        </div>
+
+        <span class="tax-count">{{ types_taxes|length }} élément(s)</span>
+    </div>
+
+    <div class="data-card-body" style="padding: 0;">
+        <div class="table-responsive">
+            <table class="data-table tax-table">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Libellé</th>
+                        <th>Description</th>
+                        <th>Dossiers rattachés</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for t in types_taxes %}
+                    <tr>
+                        <td>
+                            <span class="tax-code">{{ t.code }}</span>
+                        </td>
+
+                        <td>
+                            <strong class="tax-label">{{ t.libelle }}</strong>
+                        </td>
+
+                        <td>
+                            <span class="tax-description">
+                                {{ t.description or '—' }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="badge badge-info">
+                                {{ t.dossiers|length }} dossier(s)
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if t.actif %}
+                                <span class="badge badge-success">
+                                    <span class="status-dot"></span> ACTIF
+                                </span>
+                            {% else %}
+                                <span class="badge badge-secondary">
+                                    <span class="status-dot inactive-dot"></span> INACTIF
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <div class="tax-actions">
+                                <a
+                                    href="{{ url_for('types_taxes.modifier', taxe_id=t.id) }}"
+                                    class="btn btn-sm btn-secondary"
+                                >
+                                    Modifier
+                                </a>
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for('types_taxes.basculer_statut', taxe_id=t.id) }}"
+                                    style="display: inline;"
+                                >
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                    {% if t.actif %}
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-danger"
+                                            onclick="return confirm('Désactiver ce type de taxe ? Les dossiers existants seront conservés.');"
+                                        >
+                                            Désactiver
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-sm btn-outline">
+                                            Activer
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <div class="tax-empty">
+                                <div class="tax-empty-icon">%</div>
+                                <strong>Aucun type de taxe configuré</strong>
+                                <p>Commencez par ajouter votre première catégorie fiscale.</p>
+                                <a href="{{ url_for('types_taxes.nouveau') }}" class="btn btn-primary">
+                                    + Ajouter une taxe
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

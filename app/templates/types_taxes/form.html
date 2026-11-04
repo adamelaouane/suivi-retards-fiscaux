@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}{% if type_taxe %}Modifier {{ type_taxe.code }}{% else %}Nouveau Type de Taxe{% endif %}{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-breadcrumb">Paramètres / Types de taxes / Formulaire</div>
+        <h1 class="page-title">
+            {% if type_taxe %}Modifier le type de taxe{% else %}Nouveau type de taxe{% endif %}
+        </h1>
+        <p class="page-subtitle">Définition et configuration d'un impôt ou d'une taxe</p>
+    </div>
+
+    <a href="{{ url_for('types_taxes.index') }}" class="btn btn-secondary">
+        &larr; Retour à la liste
+    </a>
+</div>
+
+<div class="tax-form-wrapper">
+    <div class="data-card tax-form-card">
+        <div class="data-card-header">
+            <div>
+                <h2 class="data-card-title">Informations de la taxe</h2>
+                <p class="tax-form-description">
+                    Renseignez les informations nécessaires ci-dessous.
+                </p>
+            </div>
+            <div class="tax-form-icon">%</div>
+        </div>
+
+        <div class="data-card-body">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <div class="form-group">
+                    <label class="form-label" for="code">
+                        Code de la taxe <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="code"
+                        name="code"
+                        class="form-control"
+                        placeholder="Ex : TVA, IR, IS, TH"
+                        value="{{ type_taxe.code if type_taxe else '' }}"
+                        {% if type_taxe %}readonly style="background-color: #f1f5f9;"{% endif %}
+                        required
+                    >
+
+                    {% if type_taxe %}
+                    <small class="text-muted">Le code unique ne peut pas être modifié.</small>
+                    {% else %}
+                    <small class="text-muted">Saisissez un code court et identifiable.</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="libelle">
+                        Libellé complet <span class="required">*</span>
+                    </label>
+
+                    <input
+                        type="text"
+                        id="libelle"
+                        name="libelle"
+                        class="form-control"
+                        placeholder="Ex : Taxe sur la valeur ajoutée"
+                        value="{{ type_taxe.libelle if type_taxe else '' }}"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">
+                        Description / Réglementation
+                    </label>
+
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form-control"
+                        rows="4"
+                        placeholder="Ajoutez une description ou des informations réglementaires..."
+                    >{{ type_taxe.description if type_taxe and type_taxe.description else '' }}</textarea>
+                </div>
+
+                <div class="tax-form-footer">
+                    <a href="{{ url_for('types_taxes.index') }}" class="btn btn-secondary">
+                        Annuler
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        {% if type_taxe %}
+                            Enregistrer les modifications
+                        {% else %}
+                            + Créer le type de taxe
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="tax-info-note">
+        <span class="tax-info-note-icon">i</span>
+        <div>
+            <strong>Information</strong>
+            <p>
+                Chaque type de taxe représente une catégorie fiscale pouvant être
+                associée aux dossiers des contribuables.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

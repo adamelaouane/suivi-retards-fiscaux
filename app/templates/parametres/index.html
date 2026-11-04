@@ -1,0 +1,281 @@
+
+{% extends "base.html" %}
+
+{% block title %}Paramètres & Audit{% endblock %}
+
+{% block content %}
+
+<div class="settings-page">
+
+    <!-- PAGE HEADER -->
+    <div class="settings-header">
+        <div>
+            <div class="settings-eyebrow">ADMINISTRATION SYSTÈME</div>
+            <h1>Paramètres & Journal d'Audit</h1>
+            <p>
+                Gérez la configuration de votre application et consultez
+                l'historique des opérations.
+            </p>
+        </div>
+
+        <div class="settings-header-icon">⚙</div>
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="settings-alert {{ category }}">
+                <span>{{ '✓' if category == 'success' else '!' }}</span>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endwith %}
+
+    <!-- SETTINGS CARD -->
+    <section class="settings-card">
+
+        <div class="settings-card-header">
+            <div class="settings-section-icon">⚙</div>
+            <div>
+                <h2>Configuration générale</h2>
+                <p>Personnalisez les règles métier et les préférences du système.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="settings-grid">
+
+                <!-- RETARD MODERE -->
+                <div class="settings-field">
+                    <label for="seuil_retard_significatif">
+                        Seuil de retard significatif
+                    </label>
+
+                    <div class="settings-input-wrapper">
+                        <input
+                            type="number"
+                            id="seuil_retard_significatif"
+                            name="seuil_retard_significatif"
+                            min="1"
+                            max="365"
+                            value="{% for p in parametres if p.cle == 'seuil_retard_significatif' %}{{ p.valeur }}{% endfor %}"
+                        >
+                        <span>Jours</span>
+                    </div>
+
+                    <small>
+                        Déclenche une alerte de niveau modéré.
+                    </small>
+                </div>
+
+                <!-- RETARD CRITIQUE -->
+                <div class="settings-field">
+                    <label for="seuil_retard_critique">
+                        Seuil de retard critique
+                    </label>
+
+                    <div class="settings-input-wrapper">
+                        <input
+                            type="number"
+                            id="seuil_retard_critique"
+                            name="seuil_retard_critique"
+                            min="1"
+                            max="1000"
+                            value="{% for p in parametres if p.cle == 'seuil_retard_critique' %}{{ p.valeur }}{% endfor %}"
+                        >
+                        <span>Jours</span>
+                    </div>
+
+                    <small>
+                        Déclenche une alerte urgente pour les retards graves.
+                    </small>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="settings-field">
+                    <label for="lignes_par_page">
+                        Lignes par page
+                    </label>
+
+                    <div class="settings-input-wrapper">
+                        <input
+                            type="number"
+                            id="lignes_par_page"
+                            name="lignes_par_page"
+                            min="5"
+                            max="100"
+                            value="{% for p in parametres if p.cle == 'lignes_par_page' %}{{ p.valeur }}{% endfor %}"
+                        >
+                        <span>Lignes</span>
+                    </div>
+
+                    <small>
+                        Nombre d'enregistrements affichés par page.
+                    </small>
+                </div>
+
+                <!-- ORGANISME -->
+                <div class="settings-field">
+                    <label for="nom_organisme">
+                        Nom de l'organisme fiscal
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nom_organisme"
+                        name="nom_organisme"
+                        value="{% for p in parametres if p.cle == 'nom_organisme' %}{{ p.valeur }}{% endfor %}"
+                        placeholder="Nom de l'organisme"
+                    >
+
+                    <small>
+                        Apparaît dans les en-têtes des rapports et exports.
+                    </small>
+                </div>
+
+            </div>
+
+            <div class="settings-footer">
+                <div class="settings-note">
+                    <span>ⓘ</span>
+                    Les modifications seront appliquées après enregistrement.
+                </div>
+
+                <button type="submit" class="btn-save-settings">
+                    <span>✓</span>
+                    Enregistrer les paramètres
+                    <span class="save-arrow">→</span>
+                </button>
+            </div>
+
+        </form>
+
+    </section>
+
+
+    <!-- AUDIT SECTION -->
+    <section class="settings-card audit-card">
+
+        <div class="settings-card-header audit-header">
+
+            <div class="settings-section-icon audit-icon">▤</div>
+
+            <div>
+                <h2>Journal d'audit</h2>
+                <p>
+                    Historique des actions effectuées dans l'application.
+                </p>
+            </div>
+
+            <div class="audit-count">
+                <strong>{{ recent_audits|length }}</strong>
+                <span>Événements</span>
+            </div>
+
+        </div>
+
+        <div class="audit-table-wrapper">
+
+            <table class="audit-table">
+
+                <thead>
+                    <tr>
+                        <th>Date & Heure</th>
+                        <th>Action</th>
+                        <th>Objet</th>
+                        <th>Référence</th>
+                        <th>Description</th>
+                        <th>Opérateur</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for a in recent_audits %}
+
+                    <tr>
+
+                        <td class="audit-date">
+                            {{ a.date_action.strftime('%d/%m/%Y') }}
+                            <small>
+                                {{ a.date_action.strftime('%H:%M:%S') }}
+                            </small>
+                        </td>
+
+                        <td>
+                            {% if a.action in ('CREATION', 'IMPORT') %}
+                                <span class="audit-badge badge-created">
+                                    {{ a.action }}
+                                </span>
+                            {% elif a.action in ('ANNULATION', 'SUPPRESSION', 'DESACTIVATION') %}
+                                <span class="audit-badge badge-deleted">
+                                    {{ a.action }}
+                                </span>
+                            {% elif a.action == 'MODIFICATION' %}
+                                <span class="audit-badge badge-modified">
+                                    {{ a.action }}
+                                </span>
+                            {% elif a.action == 'PAIEMENT' %}
+                                <span class="audit-badge badge-payment">
+                                    {{ a.action }}
+                                </span>
+                            {% else %}
+                                <span class="audit-badge badge-other">
+                                    {{ a.action }}
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="audit-object">
+                            {{ a.objet }}
+                        </td>
+
+                        <td>
+                            {{ a.reference_objet or '—' }}
+                        </td>
+
+                        <td class="audit-description">
+                            {{ a.description }}
+                        </td>
+
+                        <td>
+                            <div class="audit-user">
+                                <span class="user-avatar">U</span>
+                                {{ a.utilisateur or 'Système' }}
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="6" class="audit-empty">
+                            <div class="empty-icon">▤</div>
+                            <strong>Aucune activité enregistrée</strong>
+                            <p>Les opérations apparaîtront ici automatiquement.</p>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        <div class="audit-footer">
+            <span>Journal des opérations récentes</span>
+            <span>Traçabilité du système</span>
+        </div>
+
+    </section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,360 @@
+
+{% extends "base.html" %}
+
+{% block title %}Dossier {{ dossier.numero_dossier }}{% endblock %}
+
+{% block content %}
+
+<div class="dossier-page">
+
+    <!-- HEADER -->
+    <div class="dossier-header">
+        <div>
+            <span class="dossier-eyebrow">DOSSIER FISCAL</span>
+            <h1>{{ dossier.numero_dossier }}</h1>
+            <p>
+                Contribuable :
+                <a href="{{ url_for('contribuables.detail', contribuable_id=dossier.contribuable.id) }}">
+                    {{ dossier.contribuable.nom_complet }}
+                </a>
+                (IF: {{ dossier.contribuable.identifiant_fiscal }})
+            </p>
+        </div>
+
+        <div class="dossier-header-actions">
+            <a href="{{ url_for('dossiers.modifier', dossier_id=dossier.id) }}"
+               class="dossier-btn dossier-btn-light">
+                Modifier dossier
+            </a>
+
+            <a href="{{ url_for('recherche.index') }}"
+               class="dossier-btn dossier-btn-light">
+                ← Recherche
+            </a>
+        </div>
+    </div>
+
+    <!-- FINANCIAL SUMMARY -->
+    <div class="dossier-stats-grid">
+
+        <article class="dossier-stat-card">
+            <span>Montant exigible</span>
+            <strong>{{ dossier.montant_exigible }} DH</strong>
+            <small>{{ dossier.type_taxe.libelle }} ({{ dossier.annee_fiscale }})</small>
+        </article>
+
+        <article class="dossier-stat-card">
+            <span>Montant payé (validé)</span>
+            <strong class="dossier-green">{{ dossier.montant_paye }} DH</strong>
+            <small>{{ dossier.paiements|selectattr('statut', 'equalto', 'VALIDE')|list|length }} versement(s)</small>
+        </article>
+
+        <article class="dossier-stat-card">
+            <span>Solde restant</span>
+            <strong class="{% if dossier.montant_restant > 0 %}dossier-orange{% else %}dossier-green{% endif %}">
+                {{ dossier.montant_restant }} DH
+            </strong>
+            <small>
+                {% if dossier.statut == 'PAYE' %}
+                    <span class="dossier-badge success">Soldé intégralement</span>
+                {% elif dossier.statut == 'PARTIELLEMENT_PAYE' %}
+                    <span class="dossier-badge warning">Partiellement réglé</span>
+                {% else %}
+                    <span class="dossier-badge danger">Totalement impayé</span>
+                {% endif %}
+            </small>
+        </article>
+
+        <article class="dossier-stat-card">
+            <span>Situation de retard</span>
+            <strong class="{% if dossier.en_retard %}dossier-red{% else %}dossier-green{% endif %}">
+                {% if dossier.en_retard %}
+                    {{ dossier.jours_retard }} jours
+                {% else %}
+                    0 jour
+                {% endif %}
+            </strong>
+            <small>Date limite : {{ dossier.date_limite.strftime('%d/%m/%Y') }}</small>
+        </article>
+
+    </div>
+
+    <!-- ADMINISTRATIVE INFORMATION -->
+    <div class="dossier-panel">
+
+        <div class="dossier-panel-header">
+            <h2>Détails administratifs</h2>
+        </div>
+
+        <div class="dossier-info-grid">
+
+            <div>
+                <span>Type de taxe</span>
+                <strong>{{ dossier.type_taxe.code }} - {{ dossier.type_taxe.libelle }}</strong>
+            </div>
+
+            <div>
+                <span>Année fiscale</span>
+                <strong>{{ dossier.annee_fiscale }}</strong>
+            </div>
+
+            <div>
+                <span>Date limite d'exigibilité</span>
+                <strong>{{ dossier.date_limite.strftime('%d/%m/%Y') }}</strong>
+            </div>
+
+            <div>
+                <span>Date de création du dossier</span>
+                <strong>{{ dossier.date_creation.strftime('%d/%m/%Y à %H:%M') }}</strong>
+            </div>
+
+        </div>
+
+        {% if dossier.observations %}
+        <div class="dossier-observation-display">
+            <span>Observations</span>
+            <p>{{ dossier.observations }}</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="dossier-panel">
+
+        <div class="dossier-panel-header">
+            <div>
+                <h2>Historique des paiements</h2>
+                <p>{{ dossier.paiements|length }} paiement(s) enregistré(s)</p>
+            </div>
+
+            {% if dossier.montant_restant > 0 %}
+                <span class="dossier-badge warning">Reste à payer : {{ dossier.montant_restant }} DH</span>
+            {% else %}
+                <span class="dossier-badge success">Dossier entièrement soldé</span>
+            {% endif %}
+        </div>
+
+        <div class="dossier-table-wrapper">
+            <table class="dossier-table">
+                <thead>
+                    <tr>
+                        <th>Date paiement</th>
+                        <th>Montant</th>
+                        <th>Référence</th>
+                        <th>Observations</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for p in dossier.paiements %}
+                    <tr {% if p.statut == 'ANNULE' %}class="dossier-row-cancelled"{% endif %}>
+                        <td>{{ p.date_paiement.strftime('%d/%m/%Y') }}</td>
+
+                        <td><strong>{{ p.montant }} DH</strong></td>
+
+                        <td>{{ p.reference or '—' }}</td>
+
+                        <td>
+                            {{ p.observations or '—' }}
+                            {% if p.motif_annulation %}
+                                <div class="dossier-cancel-reason">
+                                    Annulé : {{ p.motif_annulation }}
+                                </div>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.statut == 'VALIDE' %}
+                                <span class="dossier-badge success">VALIDÉ</span>
+                            {% else %}
+                                <span class="dossier-badge danger">ANNULÉ</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if p.statut == 'VALIDE' %}
+                            <form method="POST"
+                                  action="{{ url_for('paiements.annuler', paiement_id=p.id) }}"
+                                  onsubmit="var motif = prompt('Veuillez indiquer le motif obligatoire d\'annulation de ce paiement :'); if(!motif || !motif.trim()) return false; this.motif.value = motif.trim(); return true;">
+
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="motif" value="">
+
+                                <button type="submit" class="dossier-btn dossier-btn-danger dossier-btn-small">
+                                    Annuler
+                                </button>
+                            </form>
+                            {% else %}
+                                <span class="dossier-muted">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="dossier-empty">
+                            Aucun paiement enregistré pour ce dossier.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if dossier.montant_restant > 0 %}
+        <div class="dossier-action-section">
+
+            <h3>+ Enregistrer un nouveau versement</h3>
+
+            <form method="POST" action="{{ url_for('paiements.enregistrer') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="dossier_id" value="{{ dossier.id }}">
+
+                <div class="dossier-inline-form">
+
+                    <div class="dossier-form-group">
+                        <label for="montant">Montant (DH) * (Max: {{ dossier.montant_restant }})</label>
+                        <input type="number" id="montant" name="montant"
+                               step="0.01" min="0.01" max="{{ dossier.montant_restant }}"
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="dossier-form-group">
+                        <label for="date_paiement">Date du paiement *</label>
+                        <input type="date" id="date_paiement" name="date_paiement" required>
+                    </div>
+
+                    <div class="dossier-form-group">
+                        <label for="reference">Référence</label>
+                        <input type="text" id="reference" name="reference"
+                               placeholder="Ex: VIR-2025-01">
+                    </div>
+
+                    <div class="dossier-form-group">
+                        <label for="observations_paiement">Remarques</label>
+                        <input type="text" id="observations_paiement" name="observations"
+                               placeholder="Optionnel">
+                    </div>
+
+                    <button type="submit" class="dossier-btn dossier-btn-primary">
+                        Valider paiement
+                    </button>
+
+                </div>
+            </form>
+
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- REMINDERS -->
+    <div class="dossier-panel">
+
+        <div class="dossier-panel-header">
+            <div>
+                <h2>Suivi des relances et notifications</h2>
+                <p>{{ dossier.relances|length }} relance(s) enregistrée(s)</p>
+            </div>
+        </div>
+
+        <div class="dossier-table-wrapper">
+            <table class="dossier-table">
+                <thead>
+                    <tr>
+                        <th>Date tentative</th>
+                        <th>Canal</th>
+                        <th>Message / Objet</th>
+                        <th>Statut</th>
+                        <th>Référence externe</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for r in dossier.relances %}
+                    <tr>
+                        <td>{{ r.date_tentative.strftime('%d/%m/%Y %H:%M') }}</td>
+
+                        <td><span class="dossier-badge info">{{ r.canal }}</span></td>
+
+                        <td>{{ r.message }}</td>
+
+                        <td>
+                            {% if r.statut in ('DISTRIBUE', 'DISTRIBUEE', 'SUCCES') %}
+                                <span class="dossier-badge success">{{ r.statut }}</span>
+                            {% elif r.statut in ('ECHEC', 'ERREUR') %}
+                                <span class="dossier-badge danger">{{ r.statut }}</span>
+                            {% else %}
+                                <span class="dossier-badge secondary">{{ r.statut }}</span>
+                            {% endif %}
+                        </td>
+
+                        <td>{{ r.reference_externe or '—' }}</td>
+                    </tr>
+
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="dossier-empty">
+                            Aucune relance effectuée pour ce dossier.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="dossier-action-section">
+
+            <h3>+ Consigner une action de relance</h3>
+
+            <form method="POST" action="{{ url_for('relances.enregistrer') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="dossier_id" value="{{ dossier.id }}">
+
+                <div class="dossier-inline-form dossier-reminder-form">
+
+                    <div class="dossier-form-group">
+                        <label for="canal">Canal de contact *</label>
+                        <select id="canal" name="canal" required>
+                            <option value="COURRIER">Courrier postal</option>
+                            <option value="EMAIL">Email</option>
+                            <option value="TELEPHONE">Téléphone</option>
+                            <option value="VISITE">Visite sur place</option>
+                            <option value="SOMMATION">Sommation d'huissier</option>
+                        </select>
+                    </div>
+
+                    <div class="dossier-form-group">
+                        <label for="statut_relance">Statut de la relance *</label>
+                        <select id="statut_relance" name="statut" required>
+                            <option value="ENVOYEE">Envoyée / Effectuée</option>
+                            <option value="DISTRIBUEE">Reçue / Confirmée</option>
+                            <option value="ECHEC">Échec / Non joignable</option>
+                            <option value="ENREGISTREE">En attente</option>
+                        </select>
+                    </div>
+
+                    <div class="dossier-form-group">
+                        <label for="message">Contenu / Observation *</label>
+                        <input type="text" id="message" name="message"
+                               placeholder="Ex: Avis de relance N°1 envoyé par LRAR" required>
+                    </div>
+
+                    <button type="submit" class="dossier-btn dossier-btn-secondary">
+                        Enregistrer relance
+                    </button>
+
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+```

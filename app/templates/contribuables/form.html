@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if contribuable %}Modifier un contribuable{% else %}Nouveau contribuable{% endif %}
+{% endblock %}
+
+{% block content %}
+
+<div class="contrib-page">
+
+    <div class="contrib-header">
+        <div>
+            <span class="contrib-eyebrow">GESTION FISCALE</span>
+
+            {% if contribuable %}
+                <h1>Modifier le contribuable</h1>
+                <p>Mettez à jour les coordonnées du contribuable.</p>
+            {% else %}
+                <h1>Nouveau contribuable</h1>
+                <p>Enregistrez un nouveau contribuable dans le système.</p>
+            {% endif %}
+        </div>
+
+        <a href="{{ url_for('contribuables.index') }}" class="contrib-back-btn">
+            ← Retour à la liste
+        </a>
+    </div>
+
+    <div class="contrib-detail-card contrib-form-card">
+
+        <div class="contrib-detail-header">
+            <div>
+                <h2>Informations générales</h2>
+                <p>Veuillez remplir les champs ci-dessous.</p>
+            </div>
+        </div>
+
+        <form method="POST">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="contrib-form-grid">
+
+                <div class="contrib-form-group">
+                    <label for="identifiant_fiscal">Identifiant fiscal *</label>
+                    <input
+                        type="text"
+                        id="identifiant_fiscal"
+                        name="identifiant_fiscal"
+                        value="{{ contribuable.identifiant_fiscal if contribuable else '' }}"
+                        placeholder="Ex : 12345678"
+                        {% if contribuable %}readonly{% endif %}
+                        required
+                    >
+                    {% if contribuable %}
+                        <small>L'identifiant fiscal ne peut pas être modifié.</small>
+                    {% endif %}
+                </div>
+
+                <div class="contrib-form-group">
+                    <label for="nom">Nom *</label>
+                    <input
+                        type="text"
+                        id="nom"
+                        name="nom"
+                        value="{{ contribuable.nom if contribuable else '' }}"
+                        placeholder="Nom du contribuable"
+                        required
+                    >
+                </div>
+
+                <div class="contrib-form-group">
+                    <label for="prenom">Prénom</label>
+                    <input
+                        type="text"
+                        id="prenom"
+                        name="prenom"
+                        value="{{ contribuable.prenom if contribuable else '' }}"
+                        placeholder="Prénom du contribuable"
+                    >
+                </div>
+
+                <div class="contrib-form-group">
+                    <label for="cin">CIN</label>
+                    <input
+                        type="text"
+                        id="cin"
+                        name="cin"
+                        value="{{ contribuable.cin if contribuable and contribuable.cin else '' }}"
+                        placeholder="Ex : AB123456"
+                    >
+                </div>
+
+                <div class="contrib-form-group">
+                    <label for="telephone">Téléphone</label>
+                    <input
+                        type="text"
+                        id="telephone"
+                        name="telephone"
+                        value="{{ contribuable.telephone if contribuable and contribuable.telephone else '' }}"
+                        placeholder="Ex : 06XXXXXXXX"
+                    >
+                </div>
+
+            </div>
+
+            <div class="contrib-form-actions">
+                <a href="{{ url_for('contribuables.index') }}" class="contrib-back-btn">
+                    Annuler
+                </a>
+
+                <button type="submit" class="contrib-primary-btn">
+                    {% if contribuable %}
+                        Enregistrer les modifications
+                    {% else %}
+                        Créer le contribuable
+                    {% endif %}
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

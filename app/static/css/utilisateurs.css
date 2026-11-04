@@ -1,0 +1,271 @@
+/* =========================================
+   USERS MANAGEMENT
+   ========================================= */
+
+.users-create-card,
+.users-list-card {
+    padding: 1.6rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #E5EAF0;
+    border-radius: 12px;
+    background: #FFFFFF;
+}
+
+.users-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.users-section-header h2 {
+    margin: 0;
+    color: #17365D;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.users-section-header p {
+    margin: 0.4rem 0 0;
+    color: #7B8798;
+    font-size: 0.88rem;
+}
+
+.users-section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #EAF1F8;
+    color: #24558A;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.users-count {
+    padding: 0.45rem 0.8rem;
+    border-radius: 20px;
+    background: #EAF1F8;
+    color: #24558A;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Form */
+
+.users-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+}
+
+.users-form .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.users-form label {
+    color: #17365D;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.users-form input,
+.users-form select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid #E5EAF0;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #263445;
+    font: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.users-form input:focus,
+.users-form select:focus {
+    outline: none;
+    border-color: #24558A;
+    box-shadow: 0 0 0 3px rgba(36, 85, 138, 0.12);
+}
+
+.users-form input::placeholder {
+    color: #A0AAB8;
+}
+
+.users-form small {
+    color: #7B8798;
+    font-size: 0.78rem;
+}
+
+.users-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+/* Users table */
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+}
+
+.users-table thead {
+    background: #F7F9FC;
+}
+
+.users-table th {
+    padding: 1rem;
+    color: #526176;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    border-bottom: 1px solid #E5EAF0;
+}
+
+.users-table td {
+    padding: 1rem;
+    color: #344256;
+    font-size: 0.88rem;
+    border-bottom: 1px solid #EDF0F4;
+}
+
+.users-table tbody tr {
+    transition: background 0.2s;
+}
+
+.users-table tbody tr:hover {
+    background: #F7F9FC;
+}
+
+.users-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Identity */
+
+.users-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.users-identity strong {
+    color: #17365D;
+    font-weight: 600;
+}
+
+.users-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #EAF1F8;
+    color: #24558A;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+/* Role badges */
+
+.users-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    background: #EAF1F8;
+    color: #24558A;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+
+.role-admin {
+    background: #E8EDF5;
+    color: #17365D;
+}
+
+.role-agent {
+    background: #EAF1F8;
+    color: #24558A;
+}
+
+.role-consultation {
+    background: #F0F2F5;
+    color: #667085;
+}
+
+/* Status */
+
+.users-status,
+.users-current-account {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.status-active {
+    color: #16845B;
+}
+
+.status-disabled {
+    color: #C04444;
+}
+
+.users-current-account {
+    color: #7B8798;
+}
+
+/* Empty state */
+
+.users-empty {
+    padding: 2.5rem !important;
+    color: #7B8798 !important;
+    text-align: center;
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .users-create-card,
+    .users-list-card {
+        padding: 1rem;
+    }
+
+    .users-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .users-section-header {
+        align-items: flex-start;
+    }
+
+    .users-form-actions {
+        justify-content: stretch;
+    }
+
+    .users-form-actions .btn {
+        width: 100%;
+    }
+}

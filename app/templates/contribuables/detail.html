@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Contribuable : {{ contribuable.nom_complet }}{% endblock %}
+
+{% block content %}
+
+<div class="contrib-page">
+
+    <!-- HEADER -->
+    <div class="contrib-header">
+        <div>
+            <span class="contrib-eyebrow">FICHE CONTRIBUABLE</span>
+            <h1>{{ contribuable.nom_complet }}</h1>
+            <p>
+                Identifiant Fiscal :
+                <strong>{{ contribuable.identifiant_fiscal }}</strong>
+            </p>
+        </div>
+
+        <div class="contrib-header-actions">
+            <a href="{{ url_for('contribuables.modifier', contribuable_id=contribuable.id) }}"
+               class="contrib-back-btn">
+                Modifier coordonnées
+            </a>
+
+            <a href="{{ url_for('dossiers.nouveau', contribuable_id=contribuable.id) }}"
+               class="contrib-primary-btn">
+                + Nouveau dossier fiscal
+            </a>
+        </div>
+    </div>
+
+    <!-- STATISTICS -->
+    <div class="contrib-stats-grid">
+
+        <article class="contrib-stat-card">
+            <div class="contrib-stat-icon blue">▤</div>
+            <span>Total dossiers</span>
+            <strong>{{ situation.total_dossiers }}</strong>
+            <small>Dossiers rattachés</small>
+        </article>
+
+        <article class="contrib-stat-card">
+            <div class="contrib-stat-icon navy">◈</div>
+            <span>Total dû</span>
+            <strong>{{ situation.total_du }} DH</strong>
+            <small>Montant cumulé</small>
+        </article>
+
+        <article class="contrib-stat-card">
+            <div class="contrib-stat-icon green">✓</div>
+            <span>Total réglé</span>
+            <strong>{{ situation.total_paye }} DH</strong>
+            <small>Paiements validés</small>
+        </article>
+
+        <article class="contrib-stat-card">
+            <div class="contrib-stat-icon orange">◷</div>
+            <span>Reste à payer</span>
+            <strong>{{ situation.total_restant }} DH</strong>
+            <small>Solde exigible</small>
+        </article>
+
+        <article class="contrib-stat-card">
+            <div class="contrib-stat-icon red">!</div>
+            <span>Dossiers en retard</span>
+            <strong>{{ situation.nb_en_retard }}</strong>
+            <small>Échéances dépassées</small>
+        </article>
+
+    </div>
+
+    <!-- CONTACT INFORMATION -->
+    <div class="contrib-detail-card">
+
+        <div class="contrib-detail-header">
+            <div>
+                <h2>Informations du contribuable</h2>
+                <p>Coordonnées et informations personnelles.</p>
+            </div>
+        </div>
+
+        <div class="contrib-info-grid">
+
+            <div class="contrib-info-item">
+                <span>CIN</span>
+                <strong>{{ contribuable.cin or 'Non renseigné' }}</strong>
+            </div>
+
+            <div class="contrib-info-item">
+                <span>Téléphone</span>
+                <strong>{{ contribuable.telephone or 'Non renseigné' }}</strong>
+            </div>
+
+            <div class="contrib-info-item">
+                <span>Statut</span>
+                <strong><span class="contrib-status-active">Actif</span></strong>
+            </div>
+
+            <div class="contrib-info-item">
+                <span>Date de création</span>
+                <strong>
+                    {% if contribuable.date_creation %}
+                        {{ contribuable.date_creation.strftime('%d/%m/%Y') }}
+                    {% else %}
+                        Non renseignée
+                    {% endif %}
+                </strong>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- DOSSIERS -->
+    <div class="contrib-table-card">
+
+        <div class="contrib-table-header">
+            <div>
+                <h2>Dossiers fiscaux associés</h2>
+                <p>Historique et situation des dossiers de ce contribuable.</p>
+            </div>
+
+            <span class="contrib-total">
+                {{ situation.dossiers|length }} dossier(s)
+            </span>
+        </div>
+
+        <div class="contrib-table-wrapper">
+
+            <table class="contrib-table">
+
+                <thead>
+                    <tr>
+                        <th>N° Dossier</th>
+                        <th>Taxe</th>
+                        <th>Année</th>
+                        <th>Échéance</th>
+                        <th>Montant dû</th>
+                        <th>Restant</th>
+                        <th>Statut</th>
+                        <th>Retard</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for d in situation.dossiers %}
+
+                    <tr>
+                        <td><strong>{{ d.numero_dossier }}</strong></td>
+                        <td>{{ d.type_taxe.libelle }}</td>
+                        <td>{{ d.annee_fiscale }}</td>
+                        <td>{{ d.date_limite.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ d.montant_exigible }} DH</td>
+
+                        <td>
+                            <strong>{{ d.montant_restant }} DH</strong>
+                        </td>
+
+                        <td>
+                            {% if d.statut == 'PAYE' %}
+                                <span class="contrib-status paid">PAYÉ</span>
+                            {% elif d.statut == 'PARTIELLEMENT_PAYE' %}
+                                <span class="contrib-status partial">PARTIEL</span>
+                            {% else %}
+                                <span class="contrib-status unpaid">IMPAYÉ</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if d.en_retard %}
+                                <span class="contrib-status unpaid">
+                                    {{ d.jours_retard }} j
+                                </span>
+                            {% else %}
+                                <span class="contrib-status paid">À jour</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <a href="{{ url_for('dossiers.detail', dossier_id=d.id) }}"
+                               class="contrib-action-btn view-btn">
+                                Détails →
+                            </a>
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="9">
+                            <div class="contrib-empty">
+                                <strong>Aucun dossier fiscal</strong>
+                                <p>Ce contribuable ne possède aucun dossier pour le moment.</p>
+                            </div>
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}

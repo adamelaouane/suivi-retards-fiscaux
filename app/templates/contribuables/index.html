@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des contribuables{% endblock %}
+
+{% block content %}
+
+<div class="contrib-page">
+
+    <div class="contrib-header">
+        <div>
+            <span class="contrib-eyebrow">GESTION FISCALE</span>
+            <h1>Liste des contribuables</h1>
+            <p>Consultez et gérez les contribuables enregistrés.</p>
+        </div>
+
+        <div class="contrib-header-actions">
+            <a href="{{ url_for('contribuables.nouveau') }}" class="contrib-primary-btn">
+                + Nouveau contribuable
+            </a>
+        </div>
+    </div>
+
+    <div class="contrib-table-card">
+
+        <div class="contrib-table-header">
+            <div>
+                <h2>Contribuables enregistrés</h2>
+                <p>Recherchez et consultez les informations des contribuables.</p>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ url_for('contribuables.index') }}" class="contrib-search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ recherche }}"
+                placeholder="Rechercher par nom ou identifiant fiscal..."
+                class="contrib-search-input"
+            >
+            <button type="submit" class="contrib-primary-btn">Rechercher</button>
+
+            {% if recherche %}
+                <a href="{{ url_for('contribuables.index') }}" class="contrib-back-btn">
+                    Réinitialiser
+                </a>
+            {% endif %}
+        </form>
+
+        <div class="contrib-table-wrapper">
+            <table class="contrib-table">
+                <thead>
+                    <tr>
+                        <th>Identifiant fiscal</th>
+                        <th>Nom complet</th>
+                        <th>CIN</th>
+                        <th>Téléphone</th>
+                        <th>Dossiers</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for c in pagination.items %}
+                    <tr>
+                        <td><strong>{{ c.identifiant_fiscal }}</strong></td>
+                        <td>{{ c.nom_complet }}</td>
+                        <td>{{ c.cin or 'Non renseigné' }}</td>
+                        <td>{{ c.telephone or 'Non renseigné' }}</td>
+                        <td>
+                            <span class="contrib-total">{{ c.dossiers|length }}</span>
+                        </td>
+                        <td>
+                            <div class="contrib-row-actions">
+                                <a href="{{ url_for('contribuables.detail', contribuable_id=c.id) }}"
+                                   class="contrib-action-btn view-btn">
+                                    Détails
+                                </a>
+
+                                <a href="{{ url_for('contribuables.modifier', contribuable_id=c.id) }}"
+                                   class="contrib-action-btn">
+                                    Modifier
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6">
+                            <div class="contrib-empty">
+                                <strong>Aucun contribuable trouvé</strong>
+                                <p>
+                                    {% if recherche %}
+                                        Aucun résultat pour cette recherche.
+                                    {% else %}
+                                        Aucun contribuable n'est enregistré pour le moment.
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if pagination.pages > 1 %}
+        <div class="contrib-pagination">
+
+            {% if pagination.has_prev %}
+                <a href="{{ url_for('contribuables.index', page=pagination.prev_num, q=recherche) }}"
+                   class="contrib-page-btn">
+                    ← Précédent
+                </a>
+            {% endif %}
+
+            <span class="contrib-page-info">
+                Page {{ pagination.page }} sur {{ pagination.pages }}
+            </span>
+
+            {% if pagination.has_next %}
+                <a href="{{ url_for('contribuables.index', page=pagination.next_num, q=recherche) }}"
+                   class="contrib-page-btn">
+                    Suivant →
+                </a>
+            {% endif %}
+
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

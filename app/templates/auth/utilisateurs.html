@@ -1,0 +1,201 @@
+ {% extends "base.html" %}
+ {% block page_css %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/utilisateurs.css') }}">
+{% endblock %}
+{% block title %}Gestion des utilisateurs{% endblock %}
+{% block breadcrumb %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Gestion des utilisateurs</h1>
+        <p>Administration des comptes et contrôle des accès à l'application.</p>
+    </div>
+</div>
+
+<!-- Création d'un utilisateur -->
+<section class="content-card users-create-card">
+    <div class="users-section-header">
+        <div>
+            <h2>Créer un compte</h2>
+            <p>Ajouter un nouvel utilisateur à la plateforme.</p>
+        </div>
+        <span class="users-section-icon">+</span>
+    </div>
+
+    <form method="POST"
+          class="users-form"
+          autocomplete="off">
+
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="users-form-grid">
+
+            <div class="form-group">
+                <label for="username">Nom d'utilisateur</label>
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    maxlength="80"
+                    minlength="3"
+                    pattern="[A-Za-z0-9_.-]+"
+                    title="Utilisez uniquement des lettres, chiffres, points, tirets et underscores."
+                    autocomplete="off"
+                    placeholder="Ex : agent01"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="nom_complet">Nom complet</label>
+                <input
+                    id="nom_complet"
+                    type="text"
+                    name="nom_complet"
+                    maxlength="150"
+                    autocomplete="name"
+                    placeholder="Ex : Ahmed El Amrani"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mot de passe</label>
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    minlength="12"
+                    maxlength="128"
+                    autocomplete="new-password"
+                    placeholder="12 caractères minimum"
+                    required>
+                <small>Utilisez un mot de passe long et difficile à deviner.</small>
+            </div>
+
+            <div class="form-group">
+                <label for="role">Rôle</label>
+                <select id="role" name="role" required>
+                    <option value="agent">Agent</option>
+                    <option value="consultation">Consultation</option>
+                    <option value="admin">Administrateur</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="users-form-actions">
+            <button class="btn btn-primary" type="submit">
+                Créer le compte
+            </button>
+        </div>
+
+    </form>
+</section>
+
+<!-- Liste des utilisateurs -->
+<section class="content-card users-list-card">
+
+    <div class="users-section-header">
+        <div>
+            <h2>Comptes existants</h2>
+            <p>Consulter et gérer les utilisateurs enregistrés.</p>
+        </div>
+
+        <span class="users-count">
+            {{ users|length }} compte(s)
+        </span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="users-table">
+            <thead>
+                <tr>
+                    <th>Utilisateur</th>
+                    <th>Nom complet</th>
+                    <th>Rôle</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for user in users %}
+                <tr>
+
+                    <td>
+                        <div class="users-identity">
+                            <div class="users-avatar">
+                                {{ user.username[0]|upper }}
+                            </div>
+                            <strong>{{ user.username }}</strong>
+                        </div>
+                    </td>
+
+                    <td>{{ user.nom_complet }}</td>
+
+                    <td>
+                        <span class="users-role-badge role-{{ user.role }}">
+                            {{ user.role|capitalize }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {% if user.actif %}
+                            <span class="users-status status-active">
+                                <span class="status-indicator"></span>
+                                Actif
+                            </span>
+                        {% else %}
+                            <span class="users-status status-disabled">
+                                <span class="status-indicator"></span>
+                                Désactivé
+                            </span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if user.id != current_user.id %}
+                            <form
+                                method="POST"
+                                action="{{ url_for('auth.basculer_statut_utilisateur', user_id=user.id) }}"
+                                onsubmit="return confirm('Confirmer cette modification du statut de l’utilisateur ?');">
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{ csrf_token() }}">
+
+                                <button
+                                    class="btn {{ 'btn-danger' if user.actif else 'btn-primary' }} btn-sm"
+                                    type="submit">
+
+                                    {{ 'Désactiver' if user.actif else 'Activer' }}
+
+                                </button>
+                            </form>
+                        {% else %}
+                            <span class="users-current-account">
+                                <span class="status-indicator"></span>
+                                Compte actuel
+                            </span>
+                        {% endif %}
+                    </td>
+
+                </tr>
+
+                {% else %}
+                <tr>
+                    <td colspan="5" class="users-empty">
+                        Aucun utilisateur enregistré.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</section>
+
+{% endblock %}

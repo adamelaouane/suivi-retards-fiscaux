@@ -1,0 +1,99 @@
+/* ==============================
+   REPORTS PAGE
+============================== */
+
+.report-card {
+    width: 100%;
+    min-height: 330px;
+    box-sizing: border-box;
+    padding: 35px 25px;
+
+    background: #FFFFFF;
+    border: 2px dashed #A9BCD3;
+    border-radius: 14px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    text-decoration: none !important;
+
+    transition: all 0.25s ease;
+    cursor: pointer;
+}
+
+.report-card:hover {
+    border: 2px solid #24558A;
+    background: #F5F8FC;
+    box-shadow: 0 8px 25px rgba(23, 54, 93, 0.10);
+    transform: translateY(-3px);
+}
+
+.report-icon {
+    width: 75px;
+    height: 75px;
+    border-radius: 16px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 20px;
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.report-icon.excel-icon {
+    background: #E8F3ED;
+    color: #217346;
+}
+
+.report-icon.pdf-icon {
+    background: #FCEAEA;
+    color: #C0392B;
+}
+
+.report-card h2 {
+    color: #17365D;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.report-card p {
+    color: #7B8798;
+    font-size: 14px;
+    line-height: 1.7;
+    max-width: 300px;
+    margin-bottom: 25px;
+}
+
+.report-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #24558A;
+    color: #FFFFFF;
+
+    padding: 14px 28px;
+    min-width: 190px;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: background 0.2s ease;
+}
+
+.report-card:hover .report-button {
+    background: #17365D;
+}
+
+.report-card:focus-visible {
+    outline: 3px solid #A9C5E5;
+    outline-offset: 4px;
+}
+

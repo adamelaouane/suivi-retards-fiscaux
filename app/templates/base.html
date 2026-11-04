@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Accueil{% endblock %} | Suivi Fiscal</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+{% block page_css %}{% endblock %}
+</head>
+<body>
+
+<div class="app-layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">SF</div>
+            <div>
+                <strong>GESTION FISCALE</strong>
+                <small>Suivi des retards & impayés</small>
+            </div>
+        </div>
+
+        <div class="nav-heading">MENU PRINCIPAL</div>
+
+        <nav class="navigation">
+            <a class="nav-link {% if request.endpoint == 'accueil.index' %}active{% endif %}"
+               href="{{ url_for('accueil.index') }}">
+                <span class="nav-icon">📊</span> Tableau de bord
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('contribuables.') %}active{% endif %}"
+               href="{{ url_for('contribuables.index') }}">
+                <span class="nav-icon">👥</span> Contribuables
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('types_taxes.') %}active{% endif %}"
+               href="{{ url_for('types_taxes.index') }}">
+                <span class="nav-icon">🏷️</span> Types de taxes
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('suivi_impayes.') %}active{% endif %}"
+               href="{{ url_for('suivi_impayes.index') }}">
+                <span class="nav-icon">⚠️</span> Suivi des impayés
+            </a>
+
+            <a class="nav-link {% if request.endpoint and (request.endpoint.startswith('recherche.') or request.endpoint.startswith('dossiers.')) %}active{% endif %}"
+               href="{{ url_for('recherche.index') }}">
+               <span class="nav-icon">🔍</span> Recherche & Dossiers
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('synthese.') %}active{% endif %}"
+               href="{{ url_for('synthese.index') }}">
+                <span class="nav-icon">📈</span> Synthèse financière
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('rapports.') %}active{% endif %}"
+               href="{{ url_for('rapports.index') }}">
+                <span class="nav-icon">📑</span> Rapports & Exports
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('importation.') %}active{% endif %}"
+               href="{{ url_for('importation.index') }}">
+                <span class="nav-icon">📥</span> Importation
+            </a>
+
+            <a class="nav-link {% if request.endpoint and request.endpoint.startswith('parametres.') %}active{% endif %}"
+               href="{{ url_for('parametres.index') }}">
+                <span class="nav-icon">⚙️</span> Paramètres & Audit
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="status-dot"></span>
+            Application de démonstration
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <div class="breadcrumb">Gestion Fiscale / {% block breadcrumb %}Dossiers{% endblock %}</div>
+                <div class="topbar-title">Système de Suivi des Retards Fiscaux</div>
+            </div>
+
+            <div class="topbar-right">
+                {% if current_user.is_authenticated %}
+                    <span class="user-session">{{ current_user.nom_complet }} · {{ current_user.role|capitalize }}</span>
+                    {% if current_user.role == 'admin' %}
+                        <a class="nav-link" href="{{ url_for('auth.utilisateurs') }}">Utilisateurs</a>
+                    {% endif %}
+                    <form method="POST" action="{{ url_for('auth.logout') }}" style="display:inline;">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="nav-link">Déconnexion</button>
+                    </form>
+                {% endif %}
+                <span class="environment-badge">DONNÉES SYNTHÉTIQUES</span>
+                <span id="currentClock" class="clock">--:--:--</span>
+            </div>
+        </header>
+
+        <section class="page-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div style="margin-bottom: 1.5rem;">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'error' else 'danger' }}"
+                                 style="padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 0.75rem; font-size: 0.95rem;
+                                 {% if category == 'success' %}background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0;
+                                 {% elif category == 'danger' or category == 'error' %}background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;
+                                 {% elif category == 'warning' %}background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a;
+                                 {% else %}background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </section>
+
+        <footer class="footer">
+            <span>© 2026 — Système de Suivi des Retards Fiscaux</span>
+            <span>Données de démonstration synthétiques</span>
+        </footer>
+    </main>
+</div>
+
+<script>
+    const clock = document.getElementById("currentClock");
+
+    function updateClock() {
+        if (!clock) return;
+
+        clock.textContent = new Intl.DateTimeFormat("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        }).format(new Date());
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
