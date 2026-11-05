@@ -1,24 +1,42 @@
 import os
+import secrets
+import warnings
+
 from flask import Flask, render_template, request, abort
 from flask_login import current_user
 
 from app.extensions import csrf, db, migrate, login_manager
 
+_DEFAULT_SECRET = "dev-key-change-me-suivi-retards-fiscaux"
+
 
 def create_app(config=None):
     app = Flask(__name__, instance_relative_config=True)
 
-    app.config["SECRET_KEY"] = os.getenv(
-        "SECRET_KEY",
-        "dev-key-change-me-suivi-retards-fiscaux",
-    )
+    secret = os.getenv("SECRET_KEY", "").strip()
+    if not secret:
+        if (config or {}).get("TESTING"):
+            secret = "test-secret-key-not-for-production"
+        else:
+            # En développement uniquement : générer une clé volatile et avertir.
+            secret = _DEFAULT_SECRET
+            warnings.warn(
+                "SECRET_KEY non définie. Utilisez un fichier .env avec une clé forte "
+                "(python -c \"import secrets; print(secrets.token_hex(32))\").",
+                UserWarning,
+                stacklevel=2,
+            )
+    app.config["SECRET_KEY"] = secret
 
     os.makedirs(app.instance_path, exist_ok=True)
 
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
-        "sqlite:///"
-        + os.path.join(app.instance_path, "fiscal.db")
-    )
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = (
+            "sqlite:///" + os.path.join(app.instance_path, "fiscal.db")
+        )
 
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 Mo max par import
@@ -95,7 +113,12 @@ def create_app(config=None):
             abort(403)
 
         # Les paramètres et la gestion des comptes sont réservés à l'Admin.
-        if (request.endpoint or "").startswith("parametres.") or (request.endpoint or "").startswith("auth.utilisateurs") or (request.endpoint or "").startswith("auth.basculer_statut_utilisateur"):
+        endpoint = request.endpoint or ""
+        if (
+            endpoint.startswith("parametres.")
+            or endpoint.startswith("auth.utilisateurs")
+            or endpoint.startswith("auth.basculer_statut_utilisateur")
+        ):
             if current_user.role != "admin":
                 abort(403)
 
@@ -118,10 +141,17 @@ def create_app(config=None):
 
         username = click.prompt("Nom d'utilisateur")
         nom_complet = click.prompt("Nom complet")
-        password = getpass("Mot de passe (12 caractères minimum): ")
+        password = getpass(
+            f"Mot de passe ({User.MIN_PASSWORD_LENGTH} caractères min, "
+            "majuscule, minuscule, chiffre): "
+        )
         confirmation = getpass("Confirmer le mot de passe: ")
-        if len(password) < 12 or password != confirmation:
-            click.echo("Mot de passe trop court ou confirmation différente.")
+        if password != confirmation:
+            click.echo("Confirmation différente.")
+            return
+        ok, msg = User.valider_mot_de_passe(password)
+        if not ok:
+            click.echo(msg)
             return
         user = User(username=username.strip(), nom_complet=nom_complet.strip(), role="admin")
         user.set_password(password)
@@ -129,7 +159,10 @@ def create_app(config=None):
         db.session.commit()
         click.echo("Compte administrateur créé avec succès.")
 
-    # Gestionnaires d'erreurs HTTP personnalisés
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        return render_template("errors/403.html"), 403
+
     @app.errorhandler(404)
     def not_found_error(error):
         return render_template("errors/404.html"), 404

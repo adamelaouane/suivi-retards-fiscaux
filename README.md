@@ -3,24 +3,24 @@
 Application web de démonstration pour le suivi des dossiers fiscaux, des paiements et des retards de paiement.
 
 > **Périmètre :** ce projet est une application pédagogique utilisant une base de données locale et des données de démonstration. Il n'est pas connecté aux systèmes officiels de la Direction Générale des Impôts, à GID ou à Rokhas.
+>
+> **Ne pas utiliser avec des données fiscales réelles** sans authentification renforcée, journalisation d'audit, politique de conservation et hébergement sécurisé.
 
 ## Technologies
 
 - Python 3.11+
-- Flask
-- Flask-SQLAlchemy
-- Flask-Migrate
-- Flask-WTF
-- SQLite (base locale par défaut)
-- Pandas et OpenPyXL pour les traitements Excel
-- ReportLab pour les documents PDF
-- Pytest pour les tests
+- Flask + Flask-SQLAlchemy + Flask-Migrate + Flask-WTF + Flask-Login
+- SQLite (par défaut) — PostgreSQL possible via `DATABASE_URL`
+- Pandas / OpenPyXL (imports Excel)
+- ReportLab (PDF)
+- Pytest
 
-## Structure générale
+## Structure
 
 ```text
 suivi-retards-fiscaux/
 ├── app/
+│   ├── auth/            # Connexion, utilisateurs, décorateurs de rôles
 │   ├── accueil/
 │   ├── contribuables/
 │   ├── dossiers/
@@ -37,17 +37,14 @@ suivi-retards-fiscaux/
 │   ├── types_taxes/
 │   ├── static/
 │   └── templates/
+├── migrations/
 ├── tests/
 ├── requirements.txt
 ├── run.py
 └── README.md
 ```
 
-Les modules sont organisés par fonctionnalité avec une Application Factory (`create_app`). Les modèles sont regroupés dans `app/models`, tandis que les traitements transversaux se trouvent dans `app/services`.
-
-## Installation sous Windows
-
-Depuis le dossier du projet :
+## Installation
 
 ```powershell
 py -3.11 -m venv env
@@ -56,58 +53,69 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Si PowerShell bloque l'activation de l'environnement, utilisez l'invite de commandes :
-
-```bat
-env\Scripts\activate
-```
-
-## Lancement
+### Configuration
 
 ```bash
+cp .env.example .env
+```
+
+Éditez `.env` et définissez un `SECRET_KEY` fort :
+
+```bash
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+## Premier démarrage
+
+```bash
+# 1. Appliquer les migrations (recommandé)
+flask --app run.py db upgrade
+
+# Ou créer les tables manquantes :
+flask --app run.py init-auth-db
+
+# 2. Créer le premier administrateur
+flask --app run.py create-admin
+
+# 3. Lancer l'application
 python run.py
 ```
 
-Par défaut, le mode debug est désactivé. Pour l'activer pendant le développement :
+Ouvrez http://127.0.0.1:5000
 
-**PowerShell**
-```powershell
-$env:FLASK_DEBUG="1"
-python run.py
-```
+### Rôles
 
-**Invite de commandes**
-```bat
-set FLASK_DEBUG=1
-python run.py
-```
-
-La base SQLite locale est créée à l'emplacement configuré par l'Application Factory. Vérifiez la configuration de `app/__init__.py` avant de supprimer ou déplacer le dossier `instance`.
+| Rôle | Droits |
+|------|--------|
+| `admin` | Tout + paramètres + gestion des comptes |
+| `agent` | Lecture et écriture métier |
+| `consultation` | Lecture seule (GET) |
 
 ## Tests
 
-À la racine du projet :
-
 ```bash
 python -m pytest
+python -m pytest --cov=app --cov-report=term-missing   # optionnel
 ```
 
-Pour obtenir le rapport de couverture (facultatif) :
+## Sécurité
 
-```bash
-python -m pip install pytest-cov
-python -m pytest --cov=app --cov-report=term-missing
-```
+- Définir `SECRET_KEY` via l'environnement (jamais dans le dépôt).
+- Ne pas déployer avec le serveur de développement Flask.
+- Mot de passe : minimum 12 caractères, majuscule, minuscule, chiffre.
+- Verrouillage temporaire après 5 échecs de connexion (15 minutes).
+- Les relances enregistrées dans l'app ne prouvent pas l'envoi réel d'un SMS/e-mail/courrier.
+- Les journaux d'audit applicatifs ne sont pas un stockage inviolable.
 
-## Sécurité et limites connues
+## Déploiement (aperçu)
 
-- Utiliser une valeur `SECRET_KEY` longue, aléatoire et privée dans l'environnement avant tout déploiement.
-- Ne pas déployer l'application avec le serveur de développement Flask.
-- L'application ne doit pas être utilisée avec des données fiscales réelles ou personnelles sans authentification, autorisations, politique de conservation, journalisation protégée et audit de sécurité.
-- Les journaux d'audit applicatifs ne constituent pas, à eux seuls, un stockage inviolable.
-- Une relance enregistrée dans l'application représente un suivi interne ; elle ne prouve pas qu'un SMS, un e-mail ou un courrier a réellement été envoyé.
-- Les migrations de base de données doivent être initialisées et vérifiées dans le dépôt avant d'utiliser des commandes Flask-Migrate sur une nouvelle installation.
+Pour un usage hors démonstration :
 
-## État des tests
+1. `SECRET_KEY` fort + `FLASK_DEBUG=False`
+2. Base PostgreSQL via `DATABASE_URL`
+3. Serveur WSGI (Gunicorn / Waitress) derrière un reverse proxy HTTPS
+4. Sauvegardes régulières et politique de conservation des données
 
-Le nombre de tests peut évoluer. Le résultat à jour est celui affiché par `python -m pytest` dans l'environnement local.
+## Licence / usage pédagogique
+
+Projet de démonstration. Toute utilisation sur des données personnelles ou fiscales réelles engage la responsabilité de l'opérateur.
