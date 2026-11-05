@@ -4,14 +4,15 @@ __pycache__/
 *.py[cod]
 *.pyo
 
-# Virtual environment
+# Virtual environments
 env/
 venv/
 .venv/
 
 # Environment variables
 .env
-.env.example
+.env.*
+!.env.example
 
 # Flask
 instance/
