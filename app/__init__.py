@@ -7,7 +7,7 @@ from flask_login import current_user
 
 from app.extensions import csrf, db, migrate, login_manager
 
-_DEFAULT_SECRET = "dev-key-change-me-suivi-retards-fiscaux"
+_DEFAULT_SECRET = "987855896fufjkfozvzufuf68o6868t7ui7f76f7f7iddtilbzuteywrililguudt7"
 
 
 def create_app(config=None):
