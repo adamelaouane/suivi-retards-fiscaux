@@ -109,7 +109,8 @@ def create_app(config=None):
             return redirect(url_for("auth.login", next=request.url))
 
         # Consultation peut uniquement lire les pages (GET/HEAD/OPTIONS).
-        if current_user.role == "consultation" and request.method not in {"GET", "HEAD", "OPTIONS"}:
+        if ( current_user.role == "consultation" and request.method not in {"GET", "HEAD", "OPTIONS"} and request.endpoint != "auth.logout"):
+         
             abort(403)
 
         # Les paramètres et la gestion des comptes sont réservés à l'Admin.
